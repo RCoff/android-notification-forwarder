@@ -38,6 +38,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ConfiguredNotificationsActivity"
+            android:exported="false"
+            android:label="Configured Notifications"
+            android:theme="@style/Theme.NotificationForwarder" />
+
         <service
             android:name=".MyNotificationListenerService"
             android:exported="true"
