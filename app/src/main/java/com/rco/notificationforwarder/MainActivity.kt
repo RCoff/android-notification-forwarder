@@ -85,6 +85,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }) {
             Text("Show Configured Notifications")
         }
+        Spacer(Modifier.height(16.dp))
+        SendTestHTTPRequestButton()
     }
 }
 
@@ -93,6 +95,43 @@ fun GreetingWithButton(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     Button(onClick = { sendLocalTest(context) }) {
         Text("Send Test Notification")
+    }
+}
+
+@Composable
+fun SendTestHTTPRequestButton(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Button(onClick = {
+        val activity = context as? ComponentActivity
+        if (activity != null &&
+            (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.INTERNET
+            ) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_NETWORK_STATE
+                    ) != PackageManager.PERMISSION_GRANTED)
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE),
+                1002 // Unique request code for network permissions
+            )
+            Log.d("NotificationForwarder", "Requesting network permissions")
+        } else {
+            Log.d("NotificationForwarder", "Test HTTP request button clicked")
+            Thread {
+                val responseCode = makeHttpRequest(
+                    "http://192.168.10.131", "POST",
+                    mapOf("Content-Type" to "application/json"),
+                    """{"key":"value"}"""
+                )
+                Log.d("NotificationForwarder", "HTTP Request returned code: $responseCode")
+            }.start()
+        }
+    }, modifier = modifier) {
+        Text("Send Test HTTP Request")
     }
 }
 
